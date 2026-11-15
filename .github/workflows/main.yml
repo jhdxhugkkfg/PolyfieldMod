@@ -1,32 +1,61 @@
-name: .NET Build & Release
+name: Unity Mod Cloud Build
 
 on:
   push:
     branches: [ main ]
 
 jobs:
-  build-and-package:
+  build-mod:
     runs-on: ubuntu-latest
     steps:
-    - name: 1. 下载云端代码
+    - name: 1. 下载代码
       uses: actions/checkout@v4
 
-    - name: 2. 安装云端编译环境
-      uses: actions/setup-dotnet@v4  # 这里已修正为正确的 v4 版本
+    - name: 2. 解压依赖库 (refs.zip)
+      run: |
+        if [ -f refs.zip ]; then
+          echo "开始解压依赖库..."
+          unzip refs.zip -d .
+          echo "解压完成！"
+        else
+          echo "未找到 refs.zip，请确保已上传！"
+        fi
+
+    - name: 3. 安装 .NET 环境
+      uses: actions/setup-dotnet@v4
       with:
         dotnet-version: '8.0.x'
 
-    - name: 3. 编译项目
-      run: dotnet build --configuration Release
+    - name: 4. 编译项目
+      run: |
+        # 自动寻找刚才新建的 .csproj 文件进行编译
+        PROJECT=$(find . -maxdepth 1 -name "*.csproj" | head -n 1)
+        if [ -f "$PROJECT" ]; then
+          echo "找到项目文件: $PROJECT"
+          # 因为 Unity Mod 依赖本地 DLL，使用 dotnet build 并忽略一些警告
+          dotnet build "$PROJECT" --configuration Release /p:GenerateFullPaths=true
+        else
+          echo "未找到 .csproj 文件，请检查仓库根目录！"
+          exit 1
+        fi
 
-    - name: 4. 打包所有编译成果
+    - name: 5. 打包生成的 DLL
       run: |
         mkdir -p Build-Artifacts
-        find . -path "*/Release/*" \( -name "*.dll" -o -name "*.pdb" -o -name "*.exe" \) -exec cp {} ./Build-Artifacts/ \; 2>/dev/null || true
-        cd Build-Artifacts && zip -r ../Release-Build.zip . && cd ..
+        # 寻找编译出来的 DLL
+        find . -path "*/bin/Release/*" -name "*.dll" -exec cp {} ./Build-Artifacts/ \; 2>/dev/null || true
+        
+        # 打包成 zip
+        if [ "$(ls -A Build-Artifacts)" ]; then
+          cd Build-Artifacts && zip -r ../Mod-Output.zip . && cd ..
+          echo "打包完成，生成 Mod-Output.zip"
+        else
+          echo "编译没有生成 DLL 文件，请检查编译日志。"
+        fi
 
-    - name: 5. 上传成品
+    - name: 6. 上传编译成果
+      if: success()
       uses: actions/upload-artifact@v4
       with:
-        name: Mod-Custom-Build
-        path: Release-Build.zip
+        name: Polyfield-Mod-DLL
+        path: Mod-Output.zip
