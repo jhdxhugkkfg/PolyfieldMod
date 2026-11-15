@@ -1,18 +1,41 @@
-name: .NET Build
+name: .NET Build & Release
 
 on:
-  workflow_dispatch:
+  push:
+    branches: [ main ]
 
 jobs:
-  build:
+  build-and-package:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v3
-    - name: Setup .NET
+    - name: 1. 下载云端代码
+      uses: actions/checkout@v3
+
+    - name: 2. 安装云端编译环境
       uses: actions/setup-dotnet@v3
       with:
-        dotnet-version: '6.0.x'
-    - name: Restore refs
-      run: unzip -o refs.zip
-    - name: Build
-      run: dotnet build -c Release
+        dotnet-version: '8.0.x'
+
+    - name: 3. 智能寻找并编译项目
+      run: |
+        if [ -f "*.csproj" ]; then
+          # 如果在根目录找到项目文件，直接编译
+          dotnet build --configuration Release
+        else
+          # 如果是子文件夹结构，递归寻找所有项目文件并编译
+          find . -name "*.csproj" -type f -exec sh -c 'dotnet build "$1" --configuration Release' _ {} \;
+        fi
+
+    - name: 4. 打包编译好的文件
+      run: |
+        # 创建一个用来存放成品的文件夹
+        mkdir -p Build-Artifacts
+        # 搜索所有 Release 版本的编译结果（包括 dll, exe, pdb 文件），并打包成 zip
+        find . -type d -name "Release" | xargs -I {} sh -c 'cp -R {}/ ./Build-Artifacts/ 2>/dev/null || true'
+        cd Build-Artifacts && zip -r ../Release-Build.zip . && cd ..
+
+    - name: 5. 上传成品到云端
+      uses: actions/upload-artifact@v3
+      with:
+        name: Mod-Custom-Build
+        path: Release-Build.zip
