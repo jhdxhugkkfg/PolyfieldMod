@@ -1,36 +1,29 @@
-<<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
+    <PropertyGroup>
+        <TargetFramework>net48</TargetFramework>
+        <AssemblyName>PolyfieldMasterAdmin</AssemblyName>
+        <RootNamespace>PolyfieldMasterAdmin</RootNamespace>
+        <!-- 必须使用 .NET 4.8 兼容 IL2CPP 运行时 -->
+        <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    </PropertyGroup>
 
-  <PropertyGroup>
-    <!-- 必须使用 .NET 4.8 兼容 IL2CPP 运行时 -->
-    <TargetFramework>net48</TargetFramework>
-    <AssemblyName>PolyfieldMasterAdmin</AssemblyName>
-    <RootNamespace>PolyfieldMasterAdmin</RootNamespace>
-    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-  </PropertyGroup>
-
-  <ItemGroup>
-    <!-- BepInEx 核心库，必须指向你解压出来的本地 refs 文件夹 -->
-    <Reference Include="BepInEx.Core">
-      <HintPath>./refs/BepInEx.Core.dll</HintPath>
-      <Private>False</Private>
-    </Reference>
-    
-    <Reference Include="BepInEx.Unity.IL2CPP">
-      <HintPath>./refs/BepInEx.Unity.IL2CPP.dll</HintPath>
-      <Private>False</Private>
-    </Reference>
-
-    <!-- Il2CppInterop 核心运行时，IL2CPP 的插件没它绝对跑不起来 -->
-    <Reference Include="Il2CppInterop.Runtime">
-      <HintPath>./refs/Il2CppInterop.Runtime.dll</HintPath>
-      <Private>False</Private>
-    </Reference>
-
-    <!-- Unity 核心引擎库，从 refs 中获取 -->
-    <Reference Include="UnityEngine.CoreModule">
-      <HintPath>./refs/UnityEngine.CoreModule.dll</HintPath>
-      <Private>False</Private>
-    </Reference>
-  </ItemGroup>
-
+    <ItemGroup>
+        <!-- 注意：确保你的 refs.zip 解压后的文件名与此处完全一致 -->
+        <Reference Include="BepInEx.Core">
+            <HintPath>./BepInEx.Core.dll</HintPath>
+            <Private>False</Private>
+        </Reference>
+        <Reference Include="BepInEx.Unity.IL2CPP">
+            <HintPath>./BepInEx.Unity.IL2CPP.dll</HintPath>
+            <Private>False</Private>
+        </Reference>
+        <Reference Include="Il2CppInterop.Runtime">
+            <HintPath>./Il2CppInterop.Runtime.dll</HintPath>
+            <Private>False</Private>
+        </Reference>
+        <Reference Include="UnityEngine.CoreModule">
+            <HintPath>./UnityEngine.CoreModule.dll</HintPath>
+            <Private>False</Private>
+        </Reference>
+    </ItemGroup>
 </Project>
