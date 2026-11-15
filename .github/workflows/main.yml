@@ -1,61 +1,59 @@
-name: Unity Mod Cloud Build
+name: Unity Linux IL2CPP Mod Build
 
 on:
   push:
     branches: [ main ]
 
 jobs:
-  build-mod:
+  build:
     runs-on: ubuntu-latest
     steps:
     - name: 1. 下载代码
       uses: actions/checkout@v4
 
-    - name: 2. 解压依赖库 (refs.zip)
-      run: |
-        if [ -f refs.zip ]; then
-          echo "开始解压依赖库..."
-          unzip refs.zip -d .
-          echo "解压完成！"
-        else
-          echo "未找到 refs.zip，请确保已上传！"
-        fi
-
-    - name: 3. 安装 .NET 环境
+    - name: 2. 安装 .NET SDK
       uses: actions/setup-dotnet@v4
       with:
         dotnet-version: '8.0.x'
 
-    - name: 4. 编译项目
+    - name: 3. 解压依赖库 (refs.zip)
       run: |
-        # 自动寻找刚才新建的 .csproj 文件进行编译
-        PROJECT=$(find . -maxdepth 1 -name "*.csproj" | head -n 1)
-        if [ -f "$PROJECT" ]; then
-          echo "找到项目文件: $PROJECT"
-          # 因为 Unity Mod 依赖本地 DLL，使用 dotnet build 并忽略一些警告
-          dotnet build "$PROJECT" --configuration Release /p:GenerateFullPaths=true
+        if [ -f refs.zip ]; then
+          unzip -o refs.zip -d ./refs
+          echo "依赖库已解压到 ./refs 目录"
         else
-          echo "未找到 .csproj 文件，请检查仓库根目录！"
+          echo "警告：未找到 refs.zip，请确保已上传包含 BepInEx 和 Il2CppInterop 的 DLL 引用包！"
           exit 1
         fi
 
-    - name: 5. 打包生成的 DLL
+    - name: 4. 编译项目
+      run: |
+        PROJECT=$(find . -maxdepth 1 -name "*.csproj" | head -n 1)
+        if [ -z "$PROJECT" ]; then
+          echo "错误：未在仓库根目录找到 .csproj 项目文件，请检查是否已上传！"
+          exit 1
+        fi
+        
+        # 使用 NuGet 恢复包，并指定自定义的 DLL 引用路径进行编译
+        dotnet restore "$PROJECT"
+        dotnet build "$PROJECT" --configuration Release /p:ReferencePath=./refs/
+
+    - name: 5. 打包并上传成果
       run: |
         mkdir -p Build-Artifacts
-        # 寻找编译出来的 DLL
-        find . -path "*/bin/Release/*" -name "*.dll" -exec cp {} ./Build-Artifacts/ \; 2>/dev/null || true
+        # 在编译输出目录中寻找生成的 DLL
+        find ./bin/Release -name "*.dll" -exec cp {} ./Build-Artifacts/ \; 2>/dev/null
         
-        # 打包成 zip
         if [ "$(ls -A Build-Artifacts)" ]; then
-          cd Build-Artifacts && zip -r ../Mod-Output.zip . && cd ..
-          echo "打包完成，生成 Mod-Output.zip"
+          cd Build-Artifacts && zip -r ../Polyfield-Mod-Linux-Build.zip .
+          echo "已成功生成 Polyfield-Mod-Linux-Build.zip"
         else
-          echo "编译没有生成 DLL 文件，请检查编译日志。"
+          echo "错误：编译未生成 DLL 文件，请检查 .csproj 引用配置。"
+          exit 1
         fi
 
-    - name: 6. 上传编译成果
-      if: success()
+    - name: 6. 上传到 Artifacts
       uses: actions/upload-artifact@v4
       with:
-        name: Polyfield-Mod-DLL
-        path: Mod-Output.zip
+        name: Polyfield-Linux-Mod
+        path: Polyfield-Mod-Linux-Build.zip
