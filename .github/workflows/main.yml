@@ -11,43 +11,42 @@ jobs:
     - name: 1. 下载仓库代码
       uses: actions/checkout@v4
 
-    - name: 2. 解压 refs.zip 依赖包
+    - name: 2. 解压依赖包 (refs.zip)
       run: |
-        # 强制解压
         unzip -o refs.zip
-        echo "依赖库已解压。"
+        echo "依赖包已解压"
 
-    - name: 3. 安装 .NET SDK (6.0 兼容性更好)
+    - name: 3. 安装 .NET 环境 (6.0)
       uses: actions/setup-dotnet@v4
       with:
         dotnet-version: '6.0.x'
 
-    - name: 4. 定位工作目录并编译
+    - name: 4. 强制定位并编译项目
       run: |
-        # 强制进入云端默认的双重嵌套工作目录
-        cd /home/runner/work/PolyfieldMod/Polyfield/
+        # 强制进入双重嵌套的 PolyfieldMod 文件夹 (这是 GitHub 抽风的根源)
+        cd /home/runner/work/PolyfieldMod/PolyfieldMod/
         
-        # 打印一下当前目录的文件，确保文件都在
-        echo "当前目录文件列表："
+        # 打印当前目录文件，确认我们确实找到了 .csproj
         ls -l
         
-        # 执行编译
-        dotnet build ./PolyfieldMasterAdmin.csproj --configuration Release
+        # 使用绝对路径编译，确保万无一失
+        dotnet build /home/runner/work/PolyfieldMod/PolyfieldMod/PolyfieldMasterAdmin.csproj --configuration Release
 
-    - name: 5. 打包生成的 DLL 文件
+    - name: 5. 打包生成的 DLL
       run: |
         mkdir -p Build-Artifacts
-        find . -path "*/bin/Release/*" -name "*.dll" -exec cp {} ./Build-Artifacts/ \;
+        # 在正确的目录里寻找生成的 DLL
+        find /home/runner/work/PolyfieldMod/PolyfieldMod/bin/Release -name "*.dll" -exec cp {} ./Build-Artifacts/ \;
         
         if [ "$(ls -A Build-Artifacts)" ]; then
           cd Build-Artifacts && zip -r ../Mod-Output.zip . && cd ..
-          echo "已成功打包生成 Mod-Output.zip"
+          echo "打包成功！"
         else
-          echo "未找到生成的 DLL 文件。"
+          echo "未找到生成的 DLL"
           exit 1
         fi
 
-    - name: 6. 上传 Artifacts 供下载
+    - name: 6. 上传成果
       uses: actions/upload-artifact@v4
       with:
         name: Polyfield-Mod-DLL
