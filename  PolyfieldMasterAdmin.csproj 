@@ -6,7 +6,7 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <!-- 引用路径全部改为 ./ ，因为云端会把 DLL 直接解压到当前目录 -->
+        <!-- 引用路径改为 ./ 因为解压后 DLL 都在同一目录下 -->
         <Reference Include="BepInEx.Core">
             <HintPath>./BepInEx.Core.dll</HintPath>
             <Private>False</Private>
