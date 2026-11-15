@@ -1,24 +1,9 @@
-<Project Sdk="Microsoft.NET.Sdk">
+<<Project Sdk="Microsoft.NET.Sdk">
     <PropertyGroup>
-        <!-- 这里使用 net48 框架，兼容绝大多数 Unity 版本 -->
         <TargetFramework>net48</TargetFramework>
         <AssemblyName>PolyfieldMasterAdmin</AssemblyName>
-        <RootNamespace>PolyfieldMasterAdmin</RootNamespace>
-        <!-- 跳过默认的 NuGet 还原，因为我们会手动指定 DLL -->
-        <DisableImplicitFrameworkReferences>true</DisableImplicitFrameworkReferences>
     </PropertyGroup>
-
     <ItemGroup>
-        <!-- 引用 BepInEx 核心库（NuGet 在线获取） -->
         <PackageReference Include="BepInEx.Core" Version="5.4.21" />
-        <!-- 如果提示找不到包，可以尝试删掉上面这行，直接引用本地 dll（见下一步） -->
-    </ItemGroup>
-
-    <ItemGroup>
-        <!-- 引用你上传的本地依赖 DLL (假设你解压了 refs.zip) -->
-        <Reference Include="UnityEngine.CoreModule">
-          <HintPath>./UnityEngine.CoreModule.dll</HintPath>
-        </Reference>
-        <!-- 如果还有其他 dll，可以照样子添加在下面 -->
     </ItemGroup>
 </Project>
