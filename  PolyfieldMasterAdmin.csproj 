@@ -3,7 +3,6 @@
         <TargetFramework>net48</TargetFramework>
         <AssemblyName>PolyfieldMasterAdmin</AssemblyName>
         <RootNamespace>PolyfieldMasterAdmin</RootNamespace>
-        <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     </PropertyGroup>
 
     <ItemGroup>
