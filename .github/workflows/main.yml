@@ -9,7 +9,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - name: 1. 下载云端代码
-      uses: actions/checkout@v3
+      uses: actions/checkout@v4
 
     - name: 2. 安装云端编译环境
       uses: actions/setup-dotnet@v3
@@ -30,12 +30,12 @@ jobs:
       run: |
         # 创建一个用来存放成品的文件夹
         mkdir -p Build-Artifacts
-        # 搜索所有 Release 版本的编译结果（包括 dll, exe, pdb 文件），并打包成 zip
+        # 搜索所有 Release 版本的编译结果，并打包成 zip
         find . -type d -name "Release" | xargs -I {} sh -c 'cp -R {}/ ./Build-Artifacts/ 2>/dev/null || true'
         cd Build-Artifacts && zip -r ../Release-Build.zip . && cd ..
 
     - name: 5. 上传成品到云端
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4  # 这里已经更新为 v4 版本
       with:
         name: Mod-Custom-Build
         path: Release-Build.zip
