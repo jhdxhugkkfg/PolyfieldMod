@@ -3,12 +3,11 @@
         <TargetFramework>net48</TargetFramework>
         <AssemblyName>PolyfieldMasterAdmin</AssemblyName>
         <RootNamespace>PolyfieldMasterAdmin</RootNamespace>
-        <!-- 必须使用 .NET 4.8 兼容 IL2CPP 运行时 -->
         <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     </PropertyGroup>
 
     <ItemGroup>
-        <!-- 注意：确保你的 refs.zip 解压后的文件名与此处完全一致 -->
+        <!-- 引用路径全部改为 ./ ，因为云端会把 DLL 直接解压到当前目录 -->
         <Reference Include="BepInEx.Core">
             <HintPath>./BepInEx.Core.dll</HintPath>
             <Private>False</Private>
