@@ -12,7 +12,7 @@ jobs:
       uses: actions/checkout@v4
 
     - name: 2. 安装云端编译环境
-      uses: actions/setup-dotnet@v8
+      uses: actions/setup-dotnet@v4  # 这里已修正为正确的 v4 版本
       with:
         dotnet-version: '8.0.x'
 
@@ -22,7 +22,6 @@ jobs:
     - name: 4. 打包所有编译成果
       run: |
         mkdir -p Build-Artifacts
-        # 简单粗暴：把所有 Release 文件夹里的 dll、pdb、exe 文件统统打包
         find . -path "*/Release/*" \( -name "*.dll" -o -name "*.pdb" -o -name "*.exe" \) -exec cp {} ./Build-Artifacts/ \; 2>/dev/null || true
         cd Build-Artifacts && zip -r ../Release-Build.zip . && cd ..
 
