@@ -13,8 +13,10 @@ jobs:
 
     - name: 2. 解压 refs.zip 依赖包
       run: |
+        # -o 强制覆盖解压，确保所有 .dll 都在根目录下
         unzip -o refs.zip
-        echo "依赖库已解压完成！"
+        echo "依赖库已解压，当前目录文件："
+        ls -l
 
     - name: 3. 安装 .NET SDK 编译环境
       uses: actions/setup-dotnet@v4
@@ -23,10 +25,7 @@ jobs:
 
     - name: 4. 编译 Mod 项目
       run: |
-        echo "当前目录文件列表："
-        ls -l
-        
-        # 使用绝对正确的文件名进行编译
+        # 现在云端可以直接在当前目录找到 .csproj 和所有的 .dll 了
         dotnet build ./PolyfieldMasterAdmin.csproj -p:Configuration=Release
 
     - name: 5. 打包生成的 DLL 文件
@@ -38,7 +37,7 @@ jobs:
           cd Build-Artifacts && zip -r ../Mod-Output.zip . && cd ..
           echo "已成功打包生成 Mod-Output.zip"
         else
-          echo "未找到生成的 DLL 文件，编译可能未成功。"
+          echo "未找到生成的 DLL 文件。"
           exit 1
         fi
 
